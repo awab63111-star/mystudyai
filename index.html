@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مذاكرتي AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;background:#080d18;color:white;
+font-family:Arial,sans-serif;padding:20px;
+}
+header{text-align:center;padding:20px 0}
+h1{color:#3295ff;font-size:30px}
+p{color:#aab8cc}
+.card{
+background:#111c30;padding:18px;
+border:1px solid #263957;
+border-radius:16px;margin:15px 0;
+}
+input,select{
+width:100%;padding:14px;margin:8px 0;
+background:#0b1424;color:white;
+border:1px solid #304767;border-radius:10px;
+}
+button{
+background:#1677ed;color:white;border:0;
+padding:13px 18px;border-radius:10px;
+font-size:15px;cursor:pointer;margin:5px;
+}
+.task{
+background:#182944;padding:13px;
+border-radius:10px;margin:9px 0;
+display:flex;justify-content:space-between;
+align-items:center;gap:8px;
+}
+.done{text-decoration:line-through;opacity:.5}
+.small{font-size:12px;color:#91a9c9}
+</style>
+</head>
+<body>
+<header>
+<h1>📘 مذاكرتي AI</h1>
+<p>خطتك اليوم... نجاحك غداً 💙</p>
+</header>
+
+<div class="card">
+<h3>📊 إنجاز المذاكرة</h3>
+<h2 id="progress">0%</h2>
+<div style="height:10px;background:#263957;border-radius:10px">
+<div id="bar" style="height:10px;width:0%;background:#3295ff;border-radius:10px"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>➕ أضف مهمة للمذاكرة</h3>
+<input id="subject" placeholder="اسم المادة">
+<input id="lesson" placeholder="اسم الدرس">
+<input id="date" type="date">
+<button onclick="addTask()">إضافة المهمة</button>
+</div>
+
+<div class="card">
+<h3>📚 جدول مذاكرتي</h3>
+<div id="tasks"></div>
+</div>
+
+<div class="card">
+<h3>💡 نصيحة اليوم</h3>
+<p id="tip">ابدأ الآن، ولو بنصف ساعة فقط. الاستمرار سر النجاح!</p>
+</div>
+
+<script>
+let tasks=JSON.parse(localStorage.getItem("studyTasks")||"[]");
+
+function save(){
+localStorage.setItem("studyTasks",JSON.stringify(tasks));
+render();
+}
+
+function addTask(){
+let subject=document.getElementById("subject").value.trim();
+let lesson=document.getElementById("lesson").value.trim();
+let date=document.getElementById("date").value;
+if(!subject||!lesson){alert("اكتب المادة والدرس أولاً");return;}
+tasks.push({subject,lesson,date,done:false});
+document.getElementById("subject").value="";
+document.getElementById("lesson").value="";
+save();
+}
+
+function toggle(i){
+tasks[i].done=!tasks[i].done;
+save();
+}
+
+function removeTask(i){
+tasks.splice(i,1);
+save();
+}
+
+function render(){
+let box=document.getElementById("tasks");
+box.innerHTML="";
+tasks.forEach((t,i)=>{
+let item=document.createElement("div");
+item.className="task";
+let info=document.createElement("div");
+let name=document.createElement("strong");
+name.textContent=t.subject+" - "+t.lesson;
+if(t.done)name.className="done";
+let date=document.createElement("div");
+date.className="small";
+date.textContent=t.date||"بدون موعد";
+info.append(name,date);
+let actions=document.createElement("div");
+let check=document.createElement("button");
+check.textContent=t.done?"تم ✓":"إنجاز";
+check.onclick=()=>toggle(i);
+let del=document.createElement("button");
+del.textContent="حذف";
+del.style.background="#a52b43";
+del.onclick=()=>removeTask(i);
+actions.append(check,del);
+item.append(info,actions);
+box.append(item);
+});
+let completed=tasks.filter(t=>t.done).length;
+let percent=tasks.length?Math.round(completed/tasks.length*100):0;
+document.getElementById("progress").textContent=percent+"%";
+document.getElementById("bar").style.width=percent+"%";
+}
+render();
+</script>
+</body>
+</html>
